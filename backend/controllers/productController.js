@@ -3,7 +3,10 @@ const { db, storage } = require('../config/firebase');
 // Get all products
 const getAllProducts = async (req, res) => {
   try {
+    console.log('📦 Fetching all products from Firestore...');
     const productsSnapshot = await db.collection('products').get();
+    console.log(`✓ Found ${productsSnapshot.size} products`);
+    
     const products = [];
     
     productsSnapshot.forEach(doc => {
@@ -13,13 +16,18 @@ const getAllProducts = async (req, res) => {
       });
     });
 
+    console.log('✅ Products fetched successfully');
     res.json({
       success: true,
       data: products,
     });
   } catch (error) {
-    console.error('Error getting products:', error);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    console.error('❌ Error getting products:', error.message || error);
+    console.error('📋 Error details:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch products',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
