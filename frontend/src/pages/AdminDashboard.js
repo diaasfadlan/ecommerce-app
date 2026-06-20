@@ -34,7 +34,8 @@ const AdminDashboard = () => {
   const fetchProducts = async (user) => {
     try {
       const token = await user.getIdToken();
-      const response = await axios.get('http://localhost:5000/api/products', {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+      const response = await axios.get(`${backendUrl}/api/products`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(response.data.data || []);
@@ -82,22 +83,23 @@ const AdminDashboard = () => {
     setSuccess('');
     try {
       let imageUrl = formData.imageUrl;
-      if (imageFile) imageUrl = await uploadImageToFirebase();
-      const token = await auth.currentUser.getIdToken();
-      const dataToSend = {...formData, imageUrl};
-      
-      if (editingId) {
-        await axios.put(`http://localhost:5000/api/admin/products/${editingId}`, dataToSend, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setSuccess('Produk diperbarui!');
-      } else {
-        const response = await axios.post('http://localhost:5000/api/admin/products', dataToSend, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setProducts([...products, response.data.data]);
-        setSuccess('Produk ditambahkan!');
-      }
+       if (imageFile) imageUrl = await uploadImageToFirebase();
+       const token = await auth.currentUser.getIdToken();
+       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+       const dataToSend = {...formData, imageUrl};
+       
+       if (editingId) {
+         await axios.put(`${backendUrl}/api/admin/products/${editingId}`, dataToSend, {
+           headers: { Authorization: `Bearer ${token}` }
+         });
+         setSuccess('Produk diperbarui!');
+       } else {
+         const response = await axios.post(`${backendUrl}/api/admin/products`, dataToSend, {
+           headers: { Authorization: `Bearer ${token}` }
+         });
+         setProducts([...products, response.data.data]);
+         setSuccess('Produk ditambahkan!');
+       }
       setFormData({name: '', description: '', price: '', category: '', stock: '', imageUrl: ''});
       setImageFile(null);
       setImagePreview('');
@@ -130,7 +132,8 @@ const AdminDashboard = () => {
     if (!window.confirm('Yakin hapus produk ini?')) return;
     try {
       const token = await auth.currentUser.getIdToken();
-      await axios.delete(`http://localhost:5000/api/admin/products/${productId}`, {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+      await axios.delete(`${backendUrl}/api/admin/products/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProducts(products.filter(p => p.id !== productId));

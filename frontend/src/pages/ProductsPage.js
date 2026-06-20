@@ -16,7 +16,8 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/products');
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+      const response = await axios.get(`${backendUrl}/api/products`);
       setProducts(response.data.data);
       setError(null);
     } catch (err) {
